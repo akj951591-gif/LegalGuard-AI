@@ -1,0 +1,8 @@
+{
+  "name": "LegalGuard AI",
+  "description": "A comprehensive AI-driven legal assistance and strategy platform that provides immediate steps, legal provisions, and document checklists for various civil and criminal cases.",
+  "requestFramePermissions": [
+    "microphone",
+    "geolocation"
+  ]
+}
