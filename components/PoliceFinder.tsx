@@ -118,22 +118,34 @@ const PoliceFinder: React.FC<PoliceFinderProps> = ({ isDarkMode }) => {
             {result.grounding && result.grounding.length > 0 && (
               <div className={`px-8 py-6 border-t ${isDarkMode ? 'bg-slate-800/50 border-slate-700' : 'bg-slate-50 border-slate-100'}`}>
                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                  <ExternalLink size={14} /> Official Map Links
+                  <ExternalLink size={14} /> Official Map Links & Sources
                 </h4>
                 <div className="flex flex-wrap gap-3">
                   {result.grounding.map((chunk: any, i: number) => (
-                    chunk.maps && (
-                      <a 
-                        key={i}
-                        href={chunk.maps.uri}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm bg-white border border-slate-200 hover:border-amber-500 hover:text-amber-600 px-4 py-2 rounded-lg transition shadow-sm font-semibold text-slate-700 flex items-center gap-2"
-                      >
-                        <MapPin size={14} className="text-red-500" />
-                        {chunk.maps.title}
-                      </a>
-                    )
+                    <React.Fragment key={i}>
+                      {chunk.maps && (
+                        <a 
+                          href={chunk.maps.uri}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm bg-white border border-slate-200 hover:border-amber-500 hover:text-amber-600 px-4 py-2 rounded-lg transition shadow-sm font-semibold text-slate-700 flex items-center gap-2"
+                        >
+                          <MapPin size={14} className="text-red-500" />
+                          {chunk.maps.title}
+                        </a>
+                      )}
+                      {chunk.web && (
+                        <a 
+                          href={chunk.web.uri}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm bg-white border border-slate-200 hover:border-blue-500 hover:text-blue-600 px-4 py-2 rounded-lg transition shadow-sm font-semibold text-slate-700 flex items-center gap-2"
+                        >
+                          <ExternalLink size={14} className="text-blue-500" />
+                          {chunk.web.title}
+                        </a>
+                      )}
+                    </React.Fragment>
                   ))}
                 </div>
               </div>

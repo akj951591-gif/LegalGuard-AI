@@ -1,17 +1,36 @@
 
-import React from 'react';
-import { ShieldAlert, Scale, Sun, Moon, Hash, Info, MapPin, History } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ShieldAlert, Scale, Sun, Moon, Hash, Info, MapPin, History, User, LogOut } from 'lucide-react';
 import { View } from '../types';
+import { supabase } from '../services/supabaseClient';
 
 interface HeaderProps {
   currentView: View;
   onViewChange: (view: View) => void;
   theme: 'light' | 'dark';
   onToggleTheme: () => void;
+  onAuthClick: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ currentView, onViewChange, theme, onToggleTheme }) => {
+const Header: React.FC<HeaderProps> = ({ currentView, onViewChange, theme, onToggleTheme, onAuthClick }) => {
   const isDarkMode = theme === 'dark';
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+  };
 
   return (
     <header className={`shadow-xl sticky top-0 z-50 transition-colors duration-500 ${isDarkMode ? 'bg-slate-900 text-white' : 'bg-white text-slate-900'}`}>
@@ -29,7 +48,7 @@ const Header: React.FC<HeaderProps> = ({ currentView, onViewChange, theme, onTog
           </div>
         </div>
         
-        <nav className="hidden lg:flex space-x-6 text-sm font-medium uppercase tracking-wider">
+        <nav className="hidden xl:flex space-x-6 text-sm font-medium uppercase tracking-wider">
           <button 
             onClick={() => onViewChange('home')}
             className={`${currentView === 'home' ? 'text-amber-400' : 'hover:text-amber-400'} transition`}
@@ -63,13 +82,6 @@ const Header: React.FC<HeaderProps> = ({ currentView, onViewChange, theme, onTog
             <Hash size={14} />
             Legal Sections
           </button>
-          <button 
-            onClick={() => onViewChange('about')}
-            className={`flex items-center gap-1.5 ${currentView === 'about' ? 'text-amber-400' : 'hover:text-amber-400'} transition`}
-          >
-            <Info size={14} />
-            About
-          </button>
         </nav>
 
         <div className="flex items-center space-x-4">
@@ -80,10 +92,32 @@ const Header: React.FC<HeaderProps> = ({ currentView, onViewChange, theme, onTog
           >
             {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
           </button>
+
+          {user ? (
+            <div className="flex items-center gap-3">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${isDarkMode ? 'bg-amber-500/20 text-amber-500' : 'bg-amber-100 text-amber-700'}`}>
+                {user.email?.[0].toUpperCase()}
+              </div>
+              <button 
+                onClick={handleSignOut}
+                className={`p-2 rounded-full hover:bg-red-500/10 text-red-500 transition-colors`}
+                title="Sign Out"
+              >
+                <LogOut size={20} />
+              </button>
+            </div>
+          ) : (
+            <button 
+              onClick={onAuthClick}
+              className={`px-4 py-2 rounded-xl text-sm font-bold border transition ${isDarkMode ? 'border-slate-700 hover:bg-slate-800' : 'border-slate-200 hover:bg-slate-50'}`}
+            >
+              Sign In
+            </button>
+          )}
           
           <button className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 animate-pulse whitespace-nowrap">
             <ShieldAlert size={18} />
-            SOS EMERGENCY
+            SOS
           </button>
         </div>
       </div>
